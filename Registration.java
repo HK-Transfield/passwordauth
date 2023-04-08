@@ -4,78 +4,56 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 class Registration {
 
-    public static final String regex = "^[a-zA-Z0-9_]$";
-    private boolean isAccountValid = false;
+    public static final String regex = "^[A-Za-z][A-Za-z0-9_]{7,29}$";
 
     /**
      * Username must comply with the following rules:
-     *
-
      */
     public static boolean isUsernameValid(String username) {
+        boolean regexValid = false;
+        boolean notSwearWord = false;
 
         // ! 1. Case insensitive
         username = username.toLowerCase();
 
         //! 2. Should only use characters from set [a-zA-z0-9_]
+        // https://laasyasettyblog.hashnode.dev/validating-username-using-regex
         if(username.matches(regex)) {
-            System.out.println("Invalid username");
-            return false;
+            regexValid = true;
+        } else {
+            AppUtils.print(AppUtils.ANSI_RED + "!! Warning: " + AppUtils.ANSI_RESET + "Invalid characters in username.");
         }
 
         // ! 3. No swear words
-        ProfanityFilter.loadConfigs();
+        ProfanityFilter.initialise();
 
         // ! 4. Should not be able to bypass rule 3 by substituting numbers for letters
-        ProfanityFilter.badWordsFound(username);
+        notSwearWord = ProfanityFilter.checkForSwears(username);
 
-        return true;
+        return regexValid && notSwearWord;
     }
 }
 
-class User {
-    private String username;
-    private String password;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setUsername(String un) {
-        this.username = un;
-    }
-
-    public void setPassword(String pwd) {
-        this.password = pwd;
-    }
-}
-
-
+/** Represents a profanity filter
+ * https://gist.github.com/PimDeWitte/c04cc17bc5fa9d7e3aee6670d4105941
+ */
 class ProfanityFilter {
-    /*
-     * https://gist.github.com/PimDeWitte/c04cc17bc5fa9d7e3aee6670d4105941
-     */
 
+    // declare class scope variables
      static Map<String, String[]> words = new HashMap<>();
-
      static int largestWordLength = 0;
 
-     public static void loadConfigs() {
+     public static void initialise() {
          String line = "";
          int counter = 0;
 
          try {
             File f = new File("Word_Filter.csv");
-
-            InputStreamReader isr = new InputStreamReader(new FileInputStream(f));
+            FileInputStream fis = new FileInputStream(f);
+            InputStreamReader isr = new InputStreamReader(fis);
             BufferedReader br = new BufferedReader(isr);
 
             while((line = br.readLine()) != null) {
@@ -86,10 +64,8 @@ class ProfanityFilter {
                 try {
                     content = line.split(",");
 
-                    if(content.length == 0) {
-                        continue;
+                    if(content.length == 0) continue;
 
-                    }
 
                     String word = content[0];
                     String[] ignore_in_combination_with_words = new String[]{};
@@ -108,14 +84,13 @@ class ProfanityFilter {
                 }
 
             }
-
+            fis.close();
             br.close();
 
             System.out.println("Loaded " + counter + " words to filter out");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
 
@@ -125,7 +100,8 @@ class ProfanityFilter {
     * @return
     */
 
-    public static ArrayList<String> badWordsFound(String input) {
+    public static ArrayList<String> searchForSwears(String input) {
+
         if(input == null) {
             return new ArrayList<>();
         }
@@ -133,16 +109,16 @@ class ProfanityFilter {
         // don't forget to remove leetspeak, probably want to move this to its own function and use regex if you want to use this
         input = removeLeetSpeak(input);
 
-        ArrayList<String> badWords = new ArrayList<>();
+        ArrayList<String> swearWords = new ArrayList<>();
         input = input.toLowerCase().replaceAll("[^a-zA-Z]", "");
 
         // iterate over each letter in the word
-        for(int start = 0; start < input.length(); start++) {
+        for(int i = 0; i < input.length(); i++) {
 
             // from each letter, keep going to find bad words until either the end of the sentence is reached, or the max word length is reached.
-            for(int offset = 1; offset < (input.length()+1 - start) && offset < largestWordLength; offset++)  {
+            for(int offset = 1; offset < (input.length()+1 - i) && offset < largestWordLength; offset++)  {
 
-                String wordToCheck = input.substring(start, start + offset);
+                String wordToCheck = input.substring(i, i + offset);
 
                 if(words.containsKey(wordToCheck)) {
                     // for example, if you want to say the word bass, that should be possible.
@@ -158,18 +134,12 @@ class ProfanityFilter {
                     }
 
                     if(!ignore) {
-                        badWords.add(wordToCheck);
+                        swearWords.add(wordToCheck);
                     }
                 }
             }
         }
-
-
-        for(String s: badWords) {
-            System.out.println(s + " qualified as a bad word in a username");
-        }
-        return badWords;
-
+        return swearWords;
     }
 
     /**
@@ -195,13 +165,14 @@ class ProfanityFilter {
         return username;
     }
 
-    public static String filterText(String input, String username) {
-        ArrayList<String> badWords = badWordsFound(input);
+    public static boolean checkForSwears(String username) {
+        ArrayList<String> swears = searchForSwears(username);
 
-        if(badWords.size() > 0) {
-            return "This message was blocked because a bad word was found. If you believe this word should not be blocked, please message support.";
+        if(swears.size() > 0) { // swears found in the username
+            System.out.println(AppUtils.ANSI_RED + "!! Warning: " + AppUtils.ANSI_RESET + " qualified as a bad word in a username");
+            return false;
         }
 
-        return input;
+        return true;
     }
 }
