@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /** Represents a Registration form
@@ -32,14 +33,63 @@ class Registration {
         // ! 4. Should not be able to bypass rule 3 by substituting numbers for letters
         notSwearWord = ProfanityFilter.checkForSwears(username);
         if(!notSwearWord)
-            System.out.println(AppUtils.ANSI_RED + "!! Warning: " + AppUtils.ANSI_RESET + " qualified as a bad word in a username");
+            AppUtils.print(AppUtils.ANSI_RED + "!! Warning: " + AppUtils.ANSI_RESET + " qualified as a bad word in a username");
 
         return charactersValid && notSwearWord; // if either are false, then the username is not valid
     }
 
-    public static boolean isPasswordValid(String password) {
+    // TODO: Implement the following NIST guidelines
+    /**
+     * 8 < length < 64
+     *
+     *
+     * @param password
+     * @return
+     */
+    public static boolean isPasswordValid(char[] pwd) throws IOException {
+        String password = new String(pwd); // convert password to String
+
+        List<String> listWeakPasswords = textFileToList("res/weakpasswords.txt");
+        if(listWeakPasswords.contains(password)) {
+            AppUtils.print(AppUtils.ANSI_RED + "!! Warning: Your password is considered too weak" + AppUtils.ANSI_RESET);
+            return false;
+        }
+
+        List<String> listBreachedPasswords = textFileToList("res/breachedpasswords.txt");
+        if(listBreachedPasswords.contains(password)) {
+            AppUtils.print(AppUtils.ANSI_RED + "!! Warning: Your password was found in a database of breached passwords" + AppUtils.ANSI_RESET);
+            return false;
+        }
 
         return false;
+    }
+
+    private static List<String> textFileToList(String filepath) throws IOException {
+        List<String> listStrings = new ArrayList<String>();
+        BufferedReader br = new BufferedReader(new FileReader(filepath));
+        String line = br.readLine();
+
+        // checking for end of file
+        while (line != null) {
+            listStrings.add(line);
+            line = br.readLine();
+        }
+
+        // closing bufferreader object
+        br.close();
+
+        // storing the data in arraylist to array
+        String[] array = listStrings.toArray(new String[0]);
+
+        // printing each line of file
+        // which is stored in array
+        for (String str : array) {
+            System.out.println(str);
+        }
+
+        br.close();
+
+        return listStrings;
     }
 
     /** Represents a profanity filter
@@ -56,7 +106,7 @@ class Registration {
             int counter = 0;
 
             try {
-                File f = new File("Word_Filter.csv");
+                File f = new File("res/Word_Filter.csv");
                 FileInputStream fis = new FileInputStream(f);
                 InputStreamReader isr = new InputStreamReader(fis);
                 BufferedReader br = new BufferedReader(isr);
