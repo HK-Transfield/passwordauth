@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class AuthenticationSystem {
 
-    public static void initialiseMenu() {
+    public static void startupMenu() {
         int option = 0;
         String[] options = {
             "1. Login",
@@ -31,6 +31,7 @@ public class AuthenticationSystem {
                         break;
                     case 2: // Registration
                         AppUtils.print("You've selected: " + option);
+                        RegistrationMenu();
                         shouldBreak = true;
                         break;
                     case 3: // Exit the application
@@ -38,6 +39,7 @@ public class AuthenticationSystem {
                         shouldBreak = true;
                         break;
                     default:
+                        System.out.println();
                         AppUtils.println("Please enter a valid option! (1/2/3)");
                         break;
                 }
@@ -49,28 +51,29 @@ public class AuthenticationSystem {
             }
         }
 
-        switch (option) {
-            case 1: // Sign in
-                break;
-            case 2: // Registration
-                break;
-            case 3: // Exit the application
-                break;
-        }
-
         s.close();
     }
 
     public static void RegistrationMenu() {
         String username, password;
+        boolean usernameValid, passwordValid;
         Scanner s = new Scanner(System.in);
 
         AppUtils.clearConsole();
+        AppUtils.println(AppUtils.ANSI_BLUE + "***********************" + AppUtils.ANSI_RESET);
+        AppUtils.println(AppUtils.ANSI_BLUE + "Registration new user" + AppUtils.ANSI_RESET);
+        AppUtils.println(AppUtils.ANSI_BLUE + "***********************" + AppUtils.ANSI_RESET);
+        AppUtils.println("\n");
 
         try {
             // read username from console
-            AppUtils.print("Create your username: ");
-            username = s.nextLine();
+            usernameValid = false;
+
+            while(!usernameValid) {
+                AppUtils.print("Create your username: ");
+                username = s.nextLine();
+                usernameValid = Registration.isUsernameValid(username);
+            }
 
             // read password from console
             AppUtils.print("\nCreate your password: ");
@@ -79,12 +82,33 @@ public class AuthenticationSystem {
         } catch (Exception e) {
             System.err.println(e);
         }
-
-
-        Registration.
+        s.close();
     }
 
     public static void main(String[] args) {
-       initialiseMenu();
+       startupMenu();
     }
 }
+
+
+class User {
+    private String username;
+    private String password;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setUsername(String un) {
+        this.username = un;
+    }
+
+    public void setPassword(String pwd) {
+        this.password = pwd;
+    }
+}
+
