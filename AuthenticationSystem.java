@@ -1,7 +1,13 @@
+import java.io.Console;
 import java.util.Scanner;
 
 public class AuthenticationSystem {
 
+    /**
+     * The main menu of the program. Here, users can choose
+     * to either login, create a new account, or exit the
+     * application.
+     */
     public static void startupMenu() {
         int option = 0;
         String[] options = {
@@ -20,23 +26,21 @@ public class AuthenticationSystem {
         AppUtils.print("Choose an option (1/2/3): ");
 
         Scanner s = new Scanner(System.in);
-        boolean shouldBreak = true;
-        while(shouldBreak) {
+        boolean keepRunning = true;
+        while(keepRunning) {
             try {
                 option = s.nextInt();
                 switch (option) {
                     case 1: // Sign in
                         AppUtils.print("You've selected: " + option);
-                        shouldBreak = true;
                         break;
                     case 2: // Registration
                         AppUtils.print("You've selected: " + option);
                         RegistrationMenu();
-                        shouldBreak = true;
                         break;
                     case 3: // Exit the application
                         AppUtils.print("You've selected: " + option);
-                        shouldBreak = true;
+                        keepRunning = false;
                         break;
                     default:
                         System.out.println();
@@ -44,7 +48,7 @@ public class AuthenticationSystem {
                         break;
                 }
 
-                if(shouldBreak) break;
+                if(!keepRunning) break;
             } catch (Exception e) {
                 AppUtils.println(AppUtils.ANSI_RED + "Something unexpected happened:" + AppUtils.ANSI_RESET);
                 System.err.println(e);
@@ -54,10 +58,16 @@ public class AuthenticationSystem {
         s.close();
     }
 
+    /**
+     * Opens a menu that allows users to create a new username and password.
+     * The method will check that both username and password meet certain
+     * criteria,
+     */
     public static void RegistrationMenu() {
-        String username, password;
+        String username;
+        char[] initPassword, reenteredPassword;
         boolean usernameValid, passwordValid;
-        Scanner s = new Scanner(System.in);
+        Console cnsl = System.console();
 
         AppUtils.clearConsole();
         AppUtils.println(AppUtils.ANSI_BLUE + "***********************" + AppUtils.ANSI_RESET);
@@ -69,20 +79,34 @@ public class AuthenticationSystem {
             // read username from console
             usernameValid = false;
 
-            while(!usernameValid) {
-                AppUtils.print("Create your username: ");
-                username = s.nextLine();
-                usernameValid = Registration.isUsernameValid(username);
+            if(cnsl == null) {
+                AppUtils.println("No console available");
+                return;
             }
 
-            // read password from console
-            AppUtils.print("\nCreate your password: ");
-            password = s.nextLine();
+            while(!usernameValid) {
+
+                username = cnsl.readLine("Create your username: ");
+                usernameValid = Registration.isUsernameValid(username);
+
+                if(usernameValid)
+                    break;
+                else
+                    AppUtils.println(AppUtils.ANSI_RED + "Please enter a valid username!" + AppUtils.ANSI_RESET);
+            }
+
+            passwordValid = false;
+
+            while(!passwordValid) {
+
+                initPassword = cnsl.readPassword("Create your password: ");
+                Registration.isPasswordValid(initPassword);
+            }
+            reenteredPassword = cnsl.readPassword("Please re-enter your password: ");
 
         } catch (Exception e) {
             System.err.println(e);
         }
-        s.close();
     }
 
     public static void main(String[] args) {
