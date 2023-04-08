@@ -51,13 +51,13 @@ class Registration {
 
         List<String> listWeakPasswords = textFileToList("res/weakpasswords.txt");
         if(listWeakPasswords.contains(password)) {
-            AppUtils.print(AppUtils.ANSI_RED + "!! Warning: Your password is considered too weak" + AppUtils.ANSI_RESET);
+            AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Your password is considered too weak" + AppUtils.ANSI_RESET);
             return false;
         }
 
         List<String> listBreachedPasswords = textFileToList("res/breachedpasswords.txt");
         if(listBreachedPasswords.contains(password)) {
-            AppUtils.print(AppUtils.ANSI_RED + "!! Warning: Your password was found in a database of breached passwords" + AppUtils.ANSI_RESET);
+            AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Your password was found in a database of breached passwords" + AppUtils.ANSI_RESET);
             return false;
         }
 
@@ -76,17 +76,6 @@ class Registration {
         }
 
         // closing bufferreader object
-        br.close();
-
-        // storing the data in arraylist to array
-        String[] array = listStrings.toArray(new String[0]);
-
-        // printing each line of file
-        // which is stored in array
-        for (String str : array) {
-            System.out.println(str);
-        }
-
         br.close();
 
         return listStrings;
@@ -142,7 +131,7 @@ class Registration {
                 fis.close();
                 br.close();
 
-                System.out.println("Loaded " + counter + " words to filter out");
+                // System.out.println("Loaded " + counter + " words to filter out");
             } catch (IOException e) {
                 e.printStackTrace();
             }
