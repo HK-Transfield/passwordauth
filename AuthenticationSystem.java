@@ -1,7 +1,18 @@
 import java.io.Console;
 import java.util.Scanner;
 
+
 public class AuthenticationSystem {
+/*
+ * https://medium.com/@kasunpdh/how-to-store-passwords-securely-with-pbkdf2-204487f14e84
+ * https://howtodoinjava.com/java/java-security/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/#4-stronger-hashes-using-pbkdf2withhmacsha1-algorithm
+ * https://github.com/Password4j/password4j
+ *
+ *
+ *
+ */
+
+
 
     /**
      * The main menu of the program. Here, users can choose
@@ -84,10 +95,11 @@ public class AuthenticationSystem {
                 return;
             }
 
+
             while(!usernameValid) {
 
                 username = cnsl.readLine("Create your username: ");
-                usernameValid = Registration.isUsernameValid(username);
+                usernameValid = RegistrationForm.isUsernameValid(username);
 
                 if(usernameValid)
                     break;
@@ -100,7 +112,7 @@ public class AuthenticationSystem {
             while(!passwordValid) {
 
                 initPassword = cnsl.readPassword("Create your password: ");
-                Registration.isPasswordValid(initPassword);
+                RegistrationForm.isPasswordValid(initPassword);
             }
             reenteredPassword = cnsl.readPassword("Please re-enter your password: ");
 
