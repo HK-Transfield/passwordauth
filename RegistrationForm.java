@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,12 +8,18 @@ import java.util.Map;
 /** Represents a Registration form
  *
  */
-class Registration {
-
-    public static final String regex = "^[A-Za-z][A-Za-z0-9_]{7,29}$";  // regex from https://laasyasettyblog.hashnode.dev/validating-username-using-regex
+class RegistrationForm {
+    // declare constants
+    public static final String REGEX = "^[A-Za-z][A-Za-z0-9_]{7,29}$";  // regex from https://laasyasettyblog.hashnode.dev/validating-username-using-regex
+    private static final int MIN_PASSWORD_LENGTH = 8;
+    private static final int MAX_PASSWORD_LENGTH = 64;
 
     /**
-     * Username must comply with the following rules:
+     * Imposes rules for creating a username and checks if it
+     * is valid.
+     *
+     * @param username The preliminary username to check
+     * @return True if the username is valid
      */
     public static boolean isUsernameValid(String username) {
         boolean charactersValid = false;
@@ -22,7 +29,7 @@ class Registration {
         username = username.toLowerCase();
 
         //! 2. Should only use characters from set [a-zA-z0-9_]
-        charactersValid = username.matches(regex);
+        charactersValid = username.matches(REGEX);
         if(!charactersValid)
             AppUtils.print(AppUtils.ANSI_RED + "!! Warning: " + AppUtils.ANSI_RESET + "Invalid characters in username, can only have letters [a-z, A-Z], numbers [0-9], and underscore [_].");
 
@@ -40,6 +47,7 @@ class Registration {
 
     // TODO: Implement the following NIST guidelines
     /**
+     * https://blog.netwrix.com/2022/11/14/nist-password-guidelines/
      * 8 < length < 64
      *
      *
@@ -47,20 +55,37 @@ class Registration {
      * @return
      */
     public static boolean isPasswordValid(char[] pwd) throws IOException {
-        String password = new String(pwd); // convert password to String
+        System.out.println(pwd.length);
 
+        // validate the minimum length of the password
+        if(pwd.length < MIN_PASSWORD_LENGTH) {
+            AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Password too short! Please create a password of at least 8 characters or more" + AppUtils.ANSI_RESET);
+            return false;
+        }
+
+        // validate the maximum length of the password
+        if(pwd.length > MAX_PASSWORD_LENGTH) {
+            AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Password too long!" + AppUtils.ANSI_RESET);
+            return false;
+        }
+
+        // check if password is a weak password
         List<String> listWeakPasswords = textFileToList("res/weakpasswords.txt");
-        if(listWeakPasswords.contains(password)) {
-            AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Your password is considered too weak" + AppUtils.ANSI_RESET);
-            return false;
+        for(String weakPassword : listWeakPasswords) {
+            if(Arrays.equals(pwd, weakPassword.toCharArray())) {
+                AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Your password is considered too weak" + AppUtils.ANSI_RESET);
+                return false;
+            }
         }
 
+        // check if password is in a breached database
         List<String> listBreachedPasswords = textFileToList("res/breachedpasswords.txt");
-        if(listBreachedPasswords.contains(password)) {
-            AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Your password was found in a database of breached passwords" + AppUtils.ANSI_RESET);
-            return false;
+        for(String breachedPassword : listBreachedPasswords) {
+            if(Arrays.equals(pwd, breachedPassword.toCharArray())) {
+                AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Your password was found in a database of breached passwords" + AppUtils.ANSI_RESET);
+                return false;
+            }
         }
-
         return false;
     }
 
