@@ -1,3 +1,4 @@
+package com.hktransfield;
 import java.io.Console;
 import java.util.Scanner;
 
@@ -119,10 +120,6 @@ public class AuthenticationSystem {
         } catch (Exception e) {
             System.err.println(e);
         }
-    }
-
-    public static void main(String[] args) {
-       startupMenu();
     }
 }
 
