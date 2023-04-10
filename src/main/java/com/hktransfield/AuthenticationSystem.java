@@ -1,5 +1,6 @@
 package com.hktransfield;
 import java.io.Console;
+import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -12,8 +13,6 @@ public class AuthenticationSystem {
  *
  *
  */
-
-
 
     /**
      * The main menu of the program. Here, users can choose
@@ -28,14 +27,14 @@ public class AuthenticationSystem {
             "3. Exit"
         };
 
-        AppUtils.clearConsole();
-        AppUtils.println(AppUtils.ANSI_YELLOW + "***********************" + AppUtils.ANSI_RESET);
-        AppUtils.println(AppUtils.ANSI_YELLOW + "Password Authentication System" + AppUtils.ANSI_RESET);
-        AppUtils.println(AppUtils.ANSI_YELLOW + "By Harmon Transfield" + AppUtils.ANSI_RESET);
-        AppUtils.println(AppUtils.ANSI_YELLOW + "***********************" + AppUtils.ANSI_RESET);
-        AppUtils.println("\n");
-        AppUtils.printMenu(options);
-        AppUtils.print("Choose an option (1/2/3): ");
+        PrintUtils.clearConsole();
+        PrintUtils.println(PrintUtils.ANSI_YELLOW + "***********************" + PrintUtils.ANSI_RESET);
+        PrintUtils.println(PrintUtils.ANSI_YELLOW + "Password Authentication System" + PrintUtils.ANSI_RESET);
+        PrintUtils.println(PrintUtils.ANSI_YELLOW + "By Harmon Transfield" + PrintUtils.ANSI_RESET);
+        PrintUtils.println(PrintUtils.ANSI_YELLOW + "***********************" + PrintUtils.ANSI_RESET);
+        PrintUtils.println("\n");
+        PrintUtils.printMenu(options);
+        PrintUtils.print("Choose an option (1/2/3): ");
 
         Scanner s = new Scanner(System.in);
         boolean keepRunning = true;
@@ -44,25 +43,25 @@ public class AuthenticationSystem {
                 option = s.nextInt();
                 switch (option) {
                     case 1: // Sign in
-                        AppUtils.print("You've selected: " + option);
+                        PrintUtils.print("You've selected: " + option);
                         break;
                     case 2: // Registration
-                        AppUtils.print("You've selected: " + option);
-                        RegistrationMenu();
+                        PrintUtils.print("You've selected: " + option);
+                        registrationMenu();
                         break;
                     case 3: // Exit the application
-                        AppUtils.print("You've selected: " + option);
+                        PrintUtils.print("You've selected: " + option);
                         keepRunning = false;
                         break;
                     default:
                         System.out.println();
-                        AppUtils.println("Please enter a valid option! (1/2/3)");
+                        PrintUtils.println("Please enter a valid option! (1/2/3)");
                         break;
                 }
 
                 if(!keepRunning) break;
             } catch (Exception e) {
-                AppUtils.println(AppUtils.ANSI_RED + "Something unexpected happened:" + AppUtils.ANSI_RESET);
+                PrintUtils.println(PrintUtils.ANSI_RED + "Something unexpected happened:" + PrintUtils.ANSI_RESET);
                 System.err.println(e);
             }
         }
@@ -71,28 +70,38 @@ public class AuthenticationSystem {
     }
 
     /**
+     * Opens a menu that allows users to login to an existing username and password.
+     */
+    public static void loginMenu() {
+
+    }
+
+    /**
      * Opens a menu that allows users to create a new username and password.
      * The method will check that both username and password meet certain
      * criteria,
      */
-    public static void RegistrationMenu() {
-        String username;
-        char[] initPassword, reenteredPassword;
+    public static void registrationMenu() {
+        String username = "";
+        char[] initPassword;
+        char[] reenteredPassword = {};
         boolean usernameValid, passwordValid;
+        UserDatabase udb;
         Console cnsl = System.console();
 
-        AppUtils.clearConsole();
-        AppUtils.println(AppUtils.ANSI_BLUE + "***********************" + AppUtils.ANSI_RESET);
-        AppUtils.println(AppUtils.ANSI_BLUE + "Registration new user" + AppUtils.ANSI_RESET);
-        AppUtils.println(AppUtils.ANSI_BLUE + "***********************" + AppUtils.ANSI_RESET);
-        AppUtils.println("\n");
+
+        PrintUtils.clearConsole();
+        PrintUtils.println(PrintUtils.ANSI_BLUE + "***********************" + PrintUtils.ANSI_RESET);
+        PrintUtils.println(PrintUtils.ANSI_BLUE + "Registration new user" + PrintUtils.ANSI_RESET);
+        PrintUtils.println(PrintUtils.ANSI_BLUE + "***********************" + PrintUtils.ANSI_RESET);
+        PrintUtils.println("\n");
 
         try {
             // read username from console
             usernameValid = false;
 
             if(cnsl == null) {
-                AppUtils.println("No console available");
+                PrintUtils.println("No console available");
                 return;
             }
 
@@ -100,12 +109,12 @@ public class AuthenticationSystem {
             while(!usernameValid) {
 
                 username = cnsl.readLine("Create your username: ");
-                usernameValid = RegistrationForm.isUsernameValid(username);
+                usernameValid = RegistrationUtils.isUsernameValid(username);
 
                 if(usernameValid)
                     break;
                 else
-                    AppUtils.println(AppUtils.ANSI_RED + "Please enter a valid username!" + AppUtils.ANSI_RESET);
+                    PrintUtils.println(PrintUtils.ANSI_RED + "Please enter a valid username!" + PrintUtils.ANSI_RESET);
             }
 
             passwordValid = false;
@@ -113,35 +122,18 @@ public class AuthenticationSystem {
             while(!passwordValid) {
 
                 initPassword = cnsl.readPassword("Create your password: ");
-                RegistrationForm.isPasswordValid(initPassword);
-            }
-            reenteredPassword = cnsl.readPassword("Please re-enter your password: ");
+                reenteredPassword = cnsl.readPassword("Please re-enter your password: ");
 
+                if(Arrays.equals(initPassword, reenteredPassword))
+                    passwordValid = RegistrationUtils.isPasswordValid(reenteredPassword);
+            }
+
+            // SUCCESSFUL REGISTRATION
+            udb = UserDatabase.getInstance();
+            udb.registerUser(username, reenteredPassword);
         } catch (Exception e) {
             System.err.println(e);
         }
-    }
-}
-
-
-class User {
-    private String username;
-    private String password;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setUsername(String un) {
-        this.username = un;
-    }
-
-    public void setPassword(String pwd) {
-        this.password = pwd;
     }
 }
 

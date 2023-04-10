@@ -10,7 +10,7 @@ import java.util.Map;
 /** Represents a Registration form
  *
  */
-class RegistrationForm {
+public class RegistrationUtils {
     // declare constants
     public static final String REGEX = "^[A-Za-z][A-Za-z0-9_]{7,29}$";  // regex from https://laasyasettyblog.hashnode.dev/validating-username-using-regex
     private static final int MIN_PASSWORD_LENGTH = 8;
@@ -21,33 +21,33 @@ class RegistrationForm {
      * is valid.
      *
      * @param username The preliminary username to check
-     * @return True if the username is valid
+     * @return True if the username follows all rules
      */
     public static boolean isUsernameValid(String username) {
         boolean charactersValid = false;
         boolean notSwearWord = false;
 
-        // ! 1. Case insensitive
+        // * rule 1) Case insensitive
         username = username.toLowerCase();
 
-        //! 2. Should only use characters from set [a-zA-z0-9_]
+        // * rule 2) Should only use characters from set [a-zA-z0-9_]
         charactersValid = username.matches(REGEX);
         if(!charactersValid)
-            AppUtils.print(AppUtils.ANSI_RED + "!! Warning: " + AppUtils.ANSI_RESET + "Invalid characters in username, can only have letters [a-z, A-Z], numbers [0-9], and underscore [_].");
+            PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: " + PrintUtils.ANSI_RESET + "Invalid characters in username, can only have letters [a-z, A-Z], numbers [0-9], and underscore [_].");
 
 
-        // ! 3. No swear words
+        // * rule 3-4) No swear words, nor should users bypass with leetspeak
         ProfanityFilter.initialise();
 
-        // ! 4. Should not be able to bypass rule 3 by substituting numbers for letters
         notSwearWord = ProfanityFilter.checkForSwears(username);
         if(!notSwearWord)
-            AppUtils.print(AppUtils.ANSI_RED + "!! Warning: " + AppUtils.ANSI_RESET + " qualified as a bad word in a username");
+            PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: " + PrintUtils.ANSI_RESET + " please do not include swear words in username.");
 
         return charactersValid && notSwearWord; // if either are false, then the username is not valid
     }
 
     // TODO: Implement the following NIST guidelines
+    // TODO: Make sure that usernames do not match passwords
     /**
      * https://blog.netwrix.com/2022/11/14/nist-password-guidelines/
      * 8 < length < 64
@@ -61,39 +61,49 @@ class RegistrationForm {
 
         // validate the minimum length of the password
         if(pwd.length < MIN_PASSWORD_LENGTH) {
-            AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Password too short! Please create a password of at least 8 characters or more" + AppUtils.ANSI_RESET);
+            PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: Password too short! Please create a password of at least 8 characters or more" + PrintUtils.ANSI_RESET);
             return false;
         }
 
         // validate the maximum length of the password
         if(pwd.length > MAX_PASSWORD_LENGTH) {
-            AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Password too long!" + AppUtils.ANSI_RESET);
+            PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: Password too long!" + PrintUtils.ANSI_RESET);
             return false;
         }
 
         // check if password is a weak password
-        List<String> listWeakPasswords = textFileToList("res/weakpasswords.txt");
+        List<String> listWeakPasswords = textFileToList("weakpasswords.txt");
         for(String weakPassword : listWeakPasswords) {
             if(Arrays.equals(pwd, weakPassword.toCharArray())) {
-                AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Your password is considered too weak" + AppUtils.ANSI_RESET);
+                PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: Your password is considered too weak" + PrintUtils.ANSI_RESET);
                 return false;
             }
         }
 
         // check if password is in a breached database
-        List<String> listBreachedPasswords = textFileToList("res/breachedpasswords.txt");
+        List<String> listBreachedPasswords = textFileToList("breachedpasswords.txt");
         for(String breachedPassword : listBreachedPasswords) {
             if(Arrays.equals(pwd, breachedPassword.toCharArray())) {
-                AppUtils.println(AppUtils.ANSI_RED + "!! Warning: Your password was found in a database of breached passwords" + AppUtils.ANSI_RESET);
+                PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: Your password was found in a database of breached passwords" + PrintUtils.ANSI_RESET);
                 return false;
             }
         }
         return false;
     }
 
-    private static List<String> textFileToList(String filepath) throws IOException {
+    /**
+     * Converts a text file into a list of strings.
+     *
+     * @param filename
+     * @return
+     * @throws IOException
+     */
+    private static List<String> textFileToList(String filename) throws IOException {
         List<String> listStrings = new ArrayList<String>();
-        BufferedReader br = new BufferedReader(new FileReader(filepath));
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        InputStream fis = cl.getResourceAsStream(filename);
+        InputStreamReader isr = new InputStreamReader(fis);
+        BufferedReader br = new BufferedReader(isr);
         String line = br.readLine();
 
         // checking for end of file
@@ -103,6 +113,8 @@ class RegistrationForm {
         }
 
         // closing bufferreader object
+        fis.close();
+        isr.close();
         br.close();
 
         return listStrings;
@@ -111,25 +123,26 @@ class RegistrationForm {
     /** Represents a profanity filter
      * https://gist.github.com/PimDeWitte/c04cc17bc5fa9d7e3aee6670d4105941
      */
-    protected static class ProfanityFilter {
+    static class ProfanityFilter {
 
         // declare class scope variables
         static Map<String, String[]> words = new HashMap<>();
         static int largestWordLength = 0;
 
+        /**
+         * Loads in the CSV file containing all swears and obscenities.
+         */
         protected static void initialise() {
             String line = "";
-            int counter = 0;
 
             try {
-                File f = new File("res/Word_Filter.csv");
-                FileInputStream fis = new FileInputStream(f);
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                InputStream fis = cl.getResourceAsStream("Word_Filter.csv");
                 InputStreamReader isr = new InputStreamReader(fis);
                 BufferedReader br = new BufferedReader(isr);
 
                 while(line != null) {
 
-                    counter++;
                     String[] content = null;
 
                     try {
@@ -156,8 +169,8 @@ class RegistrationForm {
                     line = br.readLine();
                 }
                 fis.close();
+                isr.close();
                 br.close();
-
                 // System.out.println("Loaded " + counter + " words to filter out");
             } catch (IOException e) {
                 e.printStackTrace();
