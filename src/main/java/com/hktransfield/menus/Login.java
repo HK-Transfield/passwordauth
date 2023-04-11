@@ -1,45 +1,64 @@
 package com.hktransfield.menus;
 
 import java.io.Console;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-
-import com.hktransfield.PrintUtils;
-import com.hktransfield.RegistrationUtils;
-import com.hktransfield.UserDatabase;
+import com.hktransfield.PrintHelps;
+import com.hktransfield.UserDatastore;
 
 public class Login {
+    // declare class-scope constants
+    private final static int MAX_ATTEMPTS = 10;
 
-	public static void openMenu(UserDatabase udb) {
-        String username = "";
+    /**
+     * Opens a console menu that allos
+     *
+     * @param udb the user datastore to connect to to retrieve login information
+     */
+	public static void openMenu(UserDatastore udb) {
+        // declare method variables
+        int remainingAttempts = MAX_ATTEMPTS;
+        String username;
         char[] password;
-
-        boolean usernameValid, passwordValid;
+        boolean isLoginCorrect;
         Console cnsl = System.console();
 
-
-        PrintUtils.clearConsole();
-        PrintUtils.println(PrintUtils.ANSI_BLUE + "***********************" + PrintUtils.ANSI_RESET);
-        PrintUtils.println(PrintUtils.ANSI_BLUE + "Login to existing acocount" + PrintUtils.ANSI_RESET);
-        PrintUtils.println(PrintUtils.ANSI_BLUE + "***********************" + PrintUtils.ANSI_RESET);
-        PrintUtils.println("\n");
+        // print useful information
+        PrintHelps.clearConsole();
+        PrintHelps.println(PrintHelps.ANSI_BLUE + "***********************" + PrintHelps.ANSI_RESET);
+        PrintHelps.println(PrintHelps.ANSI_BLUE + "Login to existing acocount" + PrintHelps.ANSI_RESET);
+        PrintHelps.println(PrintHelps.ANSI_BLUE + "***********************" + PrintHelps.ANSI_RESET);
+        PrintHelps.println("\n");
 
         try {
-            // read username from console
-            usernameValid = false;
-
             if(cnsl == null) {
-                PrintUtils.println("No console available");
+                PrintHelps.println("No console available");
                 return;
             }
-            username = cnsl.readLine("Username: ");
-            password = cnsl.readPassword("Password: ");
 
-            if(udb.isLoginCorrect(username, password)) {
-                System.out.println("Success!");
-                TimeUnit.SECONDS.sleep(5);
-            } else {
-                TimeUnit.SECONDS.sleep(5);
+            while(remainingAttempts > 0) {
+                username = cnsl.readLine("Username: ");
+                password = cnsl.readPassword("Password for " + username +": ");
+                isLoginCorrect = udb.isLoginCorrect(username, password);
+
+                if(isLoginCorrect) { // successfully logged in, display welcome message
+                    PrintHelps.println(PrintHelps.ANSI_GREEN + "Welcome, you have successfully logged in!" + PrintHelps.ANSI_RESET);
+                    TimeUnit.SECONDS.sleep(5);
+                    return;
+                }
+
+                   remainingAttempts--;
+
+                if(remainingAttempts == 0) { // failed attempt, reduce
+                    PrintHelps.println(PrintHelps.ANSI_RED + "You have made too many failed attempts, please wait 15 minutes" + PrintHelps.ANSI_RESET);
+
+                    // 15 minute wait period before resetting
+                    TimeUnit.MINUTES.sleep(15);
+
+                    // reset attempts, give the user another try to log in
+                    remainingAttempts = MAX_ATTEMPTS;
+                } else {
+                    PrintHelps.println(PrintHelps.ANSI_RED + "Incorrect username or password, you have " + remainingAttempts + " attempts remaining!" + PrintHelps.ANSI_RESET);
+                }
             }
         } catch (Exception e) {
             System.err.println(e);
