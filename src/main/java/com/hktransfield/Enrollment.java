@@ -10,7 +10,7 @@ import java.util.Map;
 /** Represents a Registration form
  *
  */
-public class RegistrationUtils {
+public class Enrollment {
     // declare constants
     public static final String REGEX = "^[A-Za-z][A-Za-z0-9_]{7,29}$";  // regex from https://laasyasettyblog.hashnode.dev/validating-username-using-regex
     private static final int MIN_PASSWORD_LENGTH = 8;
@@ -24,24 +24,23 @@ public class RegistrationUtils {
      * @return True if the username follows all rules
      */
     public static boolean isUsernameValid(String username) {
-        boolean charactersValid = false;
-        boolean notSwearWord = false;
+        boolean notTaken = false;
 
         // * rule 1) Case insensitive
-        username = username.toLowerCase();
+        //username = username.toLowerCase();
 
         // * rule 2) Should only use characters from set [a-zA-z0-9_]
-        charactersValid = username.matches(REGEX);
+        boolean charactersValid = username.matches(REGEX);
         if(!charactersValid)
-            PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: " + PrintUtils.ANSI_RESET + "Invalid characters in username, can only have letters [a-z, A-Z], numbers [0-9], and underscore [_].");
+            PrintHelps.println(PrintHelps.ANSI_RED + "!! Warning: " + PrintHelps.ANSI_RESET + "Invalid characters in username, can only have letters [a-z, A-Z], numbers [0-9], and underscore [_].");
 
 
         // * rule 3-4) No swear words, nor should users bypass with leetspeak
-        ProfanityFilter.initialise();
+        ProfanityFilter.loadWordFilter();
 
-        notSwearWord = ProfanityFilter.checkForSwears(username);
+        boolean notSwearWord = ProfanityFilter.checkForBadWords(username);
         if(!notSwearWord)
-            PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: " + PrintUtils.ANSI_RESET + " please do not include swear words in username.");
+            PrintHelps.println(PrintHelps.ANSI_RED + "!! Warning: " + PrintHelps.ANSI_RESET + " please do not include swear words in username.");
 
         return charactersValid && notSwearWord; // if either are false, then the username is not valid
     }
@@ -53,7 +52,7 @@ public class RegistrationUtils {
      * 8 < length < 64
      *
      *
-     * @param password
+     * @param password the newly created password
      * @return
      */
     public static boolean isPasswordValid(char[] pwd) throws IOException {
@@ -61,13 +60,13 @@ public class RegistrationUtils {
 
         // validate the minimum length of the password
         if(pwd.length < MIN_PASSWORD_LENGTH) {
-            PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: Password too short! Please create a password of at least 8 characters or more" + PrintUtils.ANSI_RESET);
+            PrintHelps.println(PrintHelps.ANSI_RED + "WARNING: Password too short! Please create a password of at least 8 characters or more" + PrintHelps.ANSI_RESET);
             return false;
         }
 
         // validate the maximum length of the password
         if(pwd.length > MAX_PASSWORD_LENGTH) {
-            PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: Password too long!" + PrintUtils.ANSI_RESET);
+            PrintHelps.println(PrintHelps.ANSI_RED + "WARNING: Password too long!" + PrintHelps.ANSI_RESET);
             return false;
         }
 
@@ -75,7 +74,7 @@ public class RegistrationUtils {
         List<String> listWeakPasswords = textFileToList("weakpasswords.txt");
         for(String weakPassword : listWeakPasswords) {
             if(Arrays.equals(pwd, weakPassword.toCharArray())) {
-                PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: Your password is considered too weak" + PrintUtils.ANSI_RESET);
+                PrintHelps.println(PrintHelps.ANSI_RED + "WARNING: Your password is considered too weak" + PrintHelps.ANSI_RESET);
                 return false;
             }
         }
@@ -84,11 +83,11 @@ public class RegistrationUtils {
         List<String> listBreachedPasswords = textFileToList("breachedpasswords.txt");
         for(String breachedPassword : listBreachedPasswords) {
             if(Arrays.equals(pwd, breachedPassword.toCharArray())) {
-                PrintUtils.println(PrintUtils.ANSI_RED + "!! Warning: Your password was found in a database of breached passwords" + PrintUtils.ANSI_RESET);
+                PrintHelps.println(PrintHelps.ANSI_RED + "WARNING: Your password was found in a database of breached passwords" + PrintHelps.ANSI_RESET);
                 return false;
             }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -132,7 +131,7 @@ public class RegistrationUtils {
         /**
          * Loads in the CSV file containing all swears and obscenities.
          */
-        protected static void initialise() {
+        protected static void loadWordFilter() {
             String line = "";
 
             try {
@@ -141,7 +140,7 @@ public class RegistrationUtils {
                 InputStreamReader isr = new InputStreamReader(fis);
                 BufferedReader br = new BufferedReader(isr);
 
-                while(line != null) {
+                while(line != null) { // begin reading file
 
                     String[] content = null;
 
@@ -150,18 +149,17 @@ public class RegistrationUtils {
 
                         if(content.length == 0) continue;
 
-
                         String word = content[0];
-                        String[] ignore_in_combination_with_words = new String[]{};
+                        String[] ignoreInCombinationWithWords = new String[]{};
 
                         if(content.length > 1) {
-                            ignore_in_combination_with_words = content[1].split("_");
+                            ignoreInCombinationWithWords = content[1].split("_");
                         }
 
                         if(word.length() > largestWordLength) {
                             largestWordLength = word.length();
                         }
-                        words.put(word.replaceAll(" ", ""), ignore_in_combination_with_words);
+                        words.put(word.replaceAll(" ", ""), ignoreInCombinationWithWords);
 
                     } catch(Exception e) {
                         e.printStackTrace();
@@ -171,7 +169,6 @@ public class RegistrationUtils {
                 fis.close();
                 isr.close();
                 br.close();
-                // System.out.println("Loaded " + counter + " words to filter out");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -184,7 +181,7 @@ public class RegistrationUtils {
         * @return
         */
 
-        public static boolean checkForSwears(String input) {
+        public static boolean checkForBadWords(String input) {
 
             if(input == null) {
                 return true;
@@ -195,6 +192,7 @@ public class RegistrationUtils {
 
             ArrayList<String> swearWords = new ArrayList<>();
             input = input.toLowerCase().replaceAll("[^a-zA-Z]", "");
+            input = input.replaceAll("_", " ");
 
             // iterate over each letter in the word
             for(int i = 0; i < input.length(); i++) {
@@ -236,21 +234,21 @@ public class RegistrationUtils {
          * swear words when creating a username by
          * substituting numbers or symbols for letters.
          *
-         * @param username
+         * @param input
          * @return
          */
-        private static String removeLeetSpeak(String username) {
-            username = username.replaceAll("1","i");
-            username = username.replaceAll("!","i");
-            username = username.replaceAll("3","e");
-            username = username.replaceAll("4","a");
-            username = username.replaceAll("@","a");
-            username = username.replaceAll("5","s");
-            username = username.replaceAll("7","t");
-            username = username.replaceAll("0","o");
-            username = username.replaceAll("9","g");
+        private static String removeLeetSpeak(String input) {
+            input = input.replaceAll("1","i");
+            input = input.replaceAll("!","i");
+            input = input.replaceAll("3","e");
+            input = input.replaceAll("4","a");
+            input = input.replaceAll("@","a");
+            input = input.replaceAll("5","s");
+            input = input.replaceAll("7","t");
+            input = input.replaceAll("0","o");
+            input = input.replaceAll("9","g");
 
-            return username;
+            return input;
         }
     }
 
