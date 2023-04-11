@@ -9,19 +9,19 @@ import com.password4j.Password;
  * https://happycoding.io/tutorials/java-server/secure-password-storage
  * https://www.quickprogrammingtips.com/java/how-to-securely-store-passwords-in-java.html
  */
-public class UserDatabase {
+public class UserDatastore {
 	// declare class scope variables
-    private static UserDatabase instance;
+    private static UserDatastore instance;
     private Map<String, Hash> userDB = new HashMap<>();
-	private UserDatabase(){} // singleton class
+	private UserDatastore(){} // singleton class
 
 	/**
 	 * Create UserDatabase object if it does not exist.
 	 *
 	 * @return
 	 */
-    public static UserDatabase getInstance(){
-		if(instance == null) instance = new UserDatabase();
+    public static UserDatastore getInstance(){
+		if(instance == null) instance = new UserDatastore();
         return instance;
 	}
 
@@ -53,6 +53,9 @@ public class UserDatabase {
 	 * @return
 	 */
 	public boolean isLoginCorrect(String username, char[] password) {
+
+		// ensure that it is case insensitive
+		username = username.toLowerCase();
 
 		// username isn't registered
 		if(!userDB.containsKey(username)){

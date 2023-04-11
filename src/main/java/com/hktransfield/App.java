@@ -14,7 +14,7 @@ public class App {
         int option = 0;
         Scanner s = new Scanner(System.in);
         boolean keepRunning = true;
-        UserDatabase udb = UserDatabase.getInstance();
+        UserDatastore udb = UserDatastore.getInstance();
 
         Home.openMenu();
 
@@ -26,26 +26,25 @@ public class App {
                         Login.openMenu(udb);
                         break;
                     case 2: // Registration
-                    Registration.openMenu(udb);
-                    break;
+                        Registration.openMenu(udb);
+                        break;
                     case 3: // Exit the application
-                        PrintUtils.print("Goodbye!");
+                        PrintHelps.print("Goodbye!");
                         keepRunning = false;
                         break;
                         default:
                         System.out.println();
-                        PrintUtils.println("Please enter a valid option! (1/2/3)");
+                        PrintHelps.println("Please enter a valid option! (1/2/3)");
                         break;
                     }
 
                     if(!keepRunning) break;
                     else Home.openMenu();
             } catch (Exception e) {
-                PrintUtils.println(PrintUtils.ANSI_RED + "Something unexpected happened:" + PrintUtils.ANSI_RESET);
+                PrintHelps.println(PrintHelps.ANSI_RED + "Something unexpected happened:" + PrintHelps.ANSI_RESET);
                 System.err.println(e);
             }
         }
-
         s.close();
     }
 }
