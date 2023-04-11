@@ -1,8 +1,6 @@
 package com.hktransfield.menus;
-import java.util.Scanner;
 
-import com.hktransfield.AuthenticationSystem;
-import com.hktransfield.PrintUtils;
+import com.hktransfield.PrintHelps;
 
 public class Home {
 
@@ -13,13 +11,13 @@ public class Home {
             "3. Exit"
         };
 
-        PrintUtils.clearConsole();
-        PrintUtils.println(PrintUtils.ANSI_YELLOW + "***********************" + PrintUtils.ANSI_RESET);
-        PrintUtils.println(PrintUtils.ANSI_YELLOW + "Password Authentication System" + PrintUtils.ANSI_RESET);
-        PrintUtils.println(PrintUtils.ANSI_YELLOW + "By Harmon Transfield" + PrintUtils.ANSI_RESET);
-        PrintUtils.println(PrintUtils.ANSI_YELLOW + "***********************" + PrintUtils.ANSI_RESET);
-        PrintUtils.println("\n");
-        PrintUtils.printMenu(options);
-        PrintUtils.print("Choose an option (1/2/3): ");
+        PrintHelps.clearConsole();
+        PrintHelps.println(PrintHelps.ANSI_YELLOW + "***********************" + PrintHelps.ANSI_RESET);
+        PrintHelps.println(PrintHelps.ANSI_YELLOW + "Password Authentication System" + PrintHelps.ANSI_RESET);
+        PrintHelps.println(PrintHelps.ANSI_YELLOW + "By Harmon Transfield" + PrintHelps.ANSI_RESET);
+        PrintHelps.println(PrintHelps.ANSI_YELLOW + "***********************" + PrintHelps.ANSI_RESET);
+        PrintHelps.println("\n");
+        PrintHelps.printMenu(options);
+        PrintHelps.print("Choose an option (1/2/3): ");
     }
 }

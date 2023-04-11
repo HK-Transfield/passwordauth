@@ -4,9 +4,9 @@ import java.io.Console;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import com.hktransfield.PrintUtils;
-import com.hktransfield.RegistrationUtils;
-import com.hktransfield.UserDatabase;
+import com.hktransfield.PrintHelps;
+import com.hktransfield.Enrollment;
+import com.hktransfield.UserDatastore;
 
 /** Represents a registration form
  *
@@ -17,37 +17,37 @@ public class Registration {
      *
      * @param udb
      */
-    public static void openMenu(UserDatabase udb) {
+    public static void openMenu(UserDatastore udb) {
         String username = "";
         char[] initPassword;
         char[] reenteredPassword = {};
         boolean usernameValid, passwordValid;
         Console cnsl = System.console();
 
-        PrintUtils.clearConsole();
-        PrintUtils.println(PrintUtils.ANSI_BLUE + "***********************" + PrintUtils.ANSI_RESET);
-        PrintUtils.println(PrintUtils.ANSI_BLUE + "Registration new user" + PrintUtils.ANSI_RESET);
-        PrintUtils.println(PrintUtils.ANSI_BLUE + "***********************" + PrintUtils.ANSI_RESET);
-        PrintUtils.println("\n");
+        PrintHelps.clearConsole();
+        PrintHelps.println(PrintHelps.ANSI_BLUE + "***********************" + PrintHelps.ANSI_RESET);
+        PrintHelps.println(PrintHelps.ANSI_BLUE + "Registration new user" + PrintHelps.ANSI_RESET);
+        PrintHelps.println(PrintHelps.ANSI_BLUE + "***********************" + PrintHelps.ANSI_RESET);
+        PrintHelps.println("\n");
 
         try {
             // read username from console
             usernameValid = false;
 
             if(cnsl == null) {
-                PrintUtils.println("No console available");
+                PrintHelps.println("No console available");
                 return;
             }
 
             while(!usernameValid) {
 
                 username = cnsl.readLine("Create your username: ");
-                usernameValid = RegistrationUtils.isUsernameValid(username);
+                usernameValid = Enrollment.isUsernameValid(username);
 
                 if(usernameValid)
                     break;
                 else
-                    PrintUtils.println(PrintUtils.ANSI_RED + "Please enter a valid username!" + PrintUtils.ANSI_RESET);
+                    PrintHelps.println(PrintHelps.ANSI_RED + "Please enter a valid username!" + PrintHelps.ANSI_RESET);
                 }
 
                 passwordValid = false;
@@ -66,7 +66,7 @@ public class Registration {
 
             // SUCCESSFUL REGISTRATION
             udb.registerUser(username, reenteredPassword);
-            PrintUtils.println(PrintUtils.ANSI_GREEN + "Successfully created an account!" + PrintUtils.ANSI_RESET);
+            PrintHelps.println(PrintHelps.ANSI_GREEN + "Successfully created an account!" + PrintHelps.ANSI_RESET);
             TimeUnit.SECONDS.sleep(5); // display success prompt before returning to menu
         } catch (Exception e) {
             System.err.println(e);
