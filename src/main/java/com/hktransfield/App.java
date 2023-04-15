@@ -1,11 +1,5 @@
 package com.hktransfield;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.util.Scanner;
-import com.hktransfield.menus.*;
-
 public class App {
 
 
@@ -15,8 +9,8 @@ public class App {
      * @param args
      */
     public static void main(String[] args) {
-        MainFrame app = new MainFrame();
-        app.setSize(300, 300);
-        app.setVisible(true);
+        MainFrame mf = new MainFrame();
+        mf.setSize(600, 400);
+        mf.setVisible(true);
     }
 }
