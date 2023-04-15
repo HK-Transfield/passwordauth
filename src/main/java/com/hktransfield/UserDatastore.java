@@ -12,7 +12,7 @@ import com.password4j.Password;
 public class UserDatastore {
 	// declare class scope variables
     private static UserDatastore instance;
-    private Map<String, Hash> userDB = new HashMap<>();
+    private Map<String, Hash> userDB = new HashMap<>(); // simulate a database
 	private UserDatastore(){} // singleton class
 
 	/**
@@ -42,6 +42,12 @@ public class UserDatastore {
 	 * @param password
 	 */
 	public void registerUser(String username, char[] password){
+		System.out.println(username);
+		System.out.println(password);
+
+		// ensure that it is case insensitive
+		username = username.toLowerCase();
+
 		Hash hash = Password.hash(new String(password)).addRandomSalt(42).addPepper("COMPX518").withArgon2();
 		userDB.put(username, hash);
 	}
@@ -53,13 +59,14 @@ public class UserDatastore {
 	 * @return
 	 */
 	public boolean isLoginCorrect(String username, char[] password) {
+		System.out.println(username);
+		System.out.println(password);
 
 		// ensure that it is case insensitive
 		username = username.toLowerCase();
 
 		// username isn't registered
 		if(!userDB.containsKey(username)){
-			System.out.println("Can't find username");
 			return false;
 		}
 
