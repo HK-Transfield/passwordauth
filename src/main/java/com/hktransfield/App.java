@@ -9,8 +9,8 @@ public class App {
      * @param args
      */
     public static void main(String[] args) {
-        MainFrame mf = new MainFrame();
-        mf.setSize(600, 400);
-        mf.setVisible(true);
+        JFrameManager jfm = new JFrameManager();
+        jfm.setSize(300, 300);
+        jfm.setVisible(true);
     }
 }
