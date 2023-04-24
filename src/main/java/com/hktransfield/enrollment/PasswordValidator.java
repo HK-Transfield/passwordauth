@@ -11,6 +11,7 @@ import java.util.List;
  * want to implement in a password authentication based system.
  */
 public class PasswordValidator {
+    //declare constants
     private static final int MIN_PASSWORD_LENGTH = 8;
     private static final int MAX_PASSWORD_LENGTH = 64;
 
@@ -48,11 +49,12 @@ public class PasswordValidator {
     }
 
     /**
+     * Checks prospect password against a list of known weak or breached passwords
      *
-     * @param password
-     * @param filename
-     * @return
-     * @throws IOException
+     * @param password the prospect password
+     * @param filename the name of the list
+     * @return true if password is found in a list
+     * @throws IOException file not found
      */
     public static boolean isPasswordKnown(char[] password, String filename) throws IOException {
 

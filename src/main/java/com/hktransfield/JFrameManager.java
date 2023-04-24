@@ -13,7 +13,6 @@ import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -122,7 +121,7 @@ public class JFrameManager extends JFrame {
         panelWelcome = new JPanel();
 
         // create checkbox to show and hide passwords
-        checkBoxShowPassword = new JCheckBox("Show Passwords");
+        checkBoxShowPassword = new JCheckBox("Show Password");
 
         // create home label
         labelHome = new JLabel("<html><div style='text-align: center;'>Simple Password Authentication System<br>By Harmon Transfield</div></html>");
@@ -145,11 +144,11 @@ public class JFrameManager extends JFrame {
         panelWelcome.add(labelWelcome);
 
         // create login username label and textfield
-        panelLogin.add(new JLabel("Username"));    //set username label to panel
+        panelLogin.add(new JLabel("Enter Username: "));    //set username label to panel
         panelLogin.add(textFieldLogin_User = new JTextField(COLUMNS));   //set text field to panel
 
         // create login password label and textfield
-        panelLogin.add(new JLabel("Password"));    //set password label to panel
+        panelLogin.add(new JLabel("Enter Password: "));    //set password label to panel
         panelLogin.add(textFieldLogin_Password = new JPasswordField(COLUMNS));   //set text field to panel
 
         // create registration user label and textfield
@@ -313,7 +312,7 @@ public class JFrameManager extends JFrame {
                         } else {
                             // set warnings for username rules
                             if(isUsernameTaken) warnings.add("That username already exists!<br>");
-                            if(!hasValidCharacters) warnings.add("Username must have letters,numbers, underscores, and be between 8-30 characters!<br>");
+                            if(!hasValidCharacters) warnings.add("Username must have letters,numbers, underscores,<br> and be between 8-30 characters!<br>");
                             if(hasProfanity) warnings.add("Username cannot contain swear words<br>");
 
                             // warnings for password rules
@@ -329,7 +328,7 @@ public class JFrameManager extends JFrame {
                     for(String warning : warnings) result.append(warning);
 
                     // display all warning messages
-                    labelWarning.setText("<html>" + result.toString() + "</html>");
+                    labelWarning.setText("<html><div style='text-align: center;'>" + result.toString() + "</div></html>");
                     panelRegistration.add(labelWarning);
                     panelRegistration.revalidate();
                     panelRegistration.repaint();

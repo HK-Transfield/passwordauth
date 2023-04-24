@@ -10,7 +10,7 @@ public class App {
      */
     public static void main(String[] args) {
         JFrameManager jfm = new JFrameManager();
-        jfm.setSize(300, 300);
+        jfm.setSize(350, 300);
         jfm.setVisible(true);
     }
 }

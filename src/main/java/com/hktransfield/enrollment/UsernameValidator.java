@@ -11,7 +11,7 @@ import java.util.Map;
  * want to implement in a password authentication based sysmte
  */
 public class UsernameValidator {
-    private static final String REGEX = "^[A-Za-z][A-Za-z0-9_]{7,29}$";  // regex from https://laasyasettyblog.hashnode.dev/validating-username-using-regex
+    private static final String REGEX = "^[A-Za-z0-9][A-Za-z0-9_]{7,29}$";  // regex from https://laasyasettyblog.hashnode.dev/validating-username-using-regex
 
     /**
      * Imposes a rule that checks if a prospect username contains

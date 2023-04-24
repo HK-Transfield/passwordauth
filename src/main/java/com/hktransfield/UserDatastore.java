@@ -121,8 +121,10 @@ public class UserDatastore {
 		// ensure that it is case insensitive
 		username = username.toLowerCase();
 
+		// store results in a list
 		Map<String, String> users = new HashMap<>();
 
+		// setup IO
 		FileInputStream is = new FileInputStream("users.csv");
 		InputStreamReader isr = new InputStreamReader(is);
 
@@ -146,6 +148,7 @@ public class UserDatastore {
 		// username isn't registered
 		if(!users.containsKey(username)) return false;
 
+		// check that hash is correct
 		String storedHash = users.get(username);
 		return Password.check(new String(password), storedHash).addPepper("COMPX518").withArgon2();
 	}
